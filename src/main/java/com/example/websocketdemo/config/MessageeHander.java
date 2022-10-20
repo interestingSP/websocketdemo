@@ -1,6 +1,7 @@
 package com.example.websocketdemo.config;
 
-import org.springframework.boot.origin.TextResourceOrigin;
+import com.alibaba.fastjson.JSON;
+import com.example.websocketdemo.pojo.Message;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -20,7 +21,7 @@ public class MessageeHander extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String name = session.getAttributes().get("name").toString();
         SESSION_MAP.put(name,session);
-        this.handleTextMessage(session,new TextMessage("aaa"));
+
     }
     //关闭websocket
     @Override
@@ -30,6 +31,34 @@ public class MessageeHander extends TextWebSocketHandler {
     //推送消息
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        super.handleTextMessage(session, message);
+        String payload = message.getPayload();
+        Message msg = JSON.parseObject(payload, Message.class);
+        String to = msg.getTo();
+        WebSocketSession webSocketSession = SESSION_MAP.get(to);
+        if (webSocketSession != null){
+            webSocketSession.sendMessage(new TextMessage(msg.getMsg()));
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        //System.out.println(message.getPayload());
+//        WebSocketSession aabb = SESSION_MAP.get("aabb");
+//        if (aabb !=null){
+//            session.sendMessage(new TextMessage("aabbccdd"));
+//        }
     }
 }
